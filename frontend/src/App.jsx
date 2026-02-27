@@ -1,13 +1,18 @@
 import { useState } from "react"
 
 function App() {
+  
   const [task, setTask] = useState("")
+  const [date, setDate] = useState("")
+  const [time, setTime] = useState("")
   const [tasks, setTasks] = useState([])
 
   const addTask = () => {
     if(task==="") return
-    setTasks([...tasks, {text: task, done:false}])
+    setTasks([...tasks, {text: task, date, time, done:false}])
     setTask("")
+    setDate("")
+    setTime("")
   }
 
   const toggleTask = (index) => {
@@ -29,16 +34,39 @@ function App() {
         <input 
           value={task}
           onChange={(e)=>setTask(e.target.value)}
-          placeholder="Add task"
+          placeholder="Task"
         />
+
+        <input 
+          type="date"
+          value={date}
+          onChange={(e)=>setDate(e.target.value)}
+        />
+
+        <input 
+          type="time"
+          value={time}
+          onChange={(e)=>setTime(e.target.value)}
+        />
+
         <button onClick={addTask}>Add</button>
 
         {tasks.map((t,i)=>(
-          <div key={i}>
+          <div key={i} style={{
+            display:"flex",
+            justifyContent:"space-between",
+            marginTop:"10px",
+            padding:"8px",
+            border:"1px solid gray",
+            borderRadius:"5px"
+            }}>
+            <span style={{textDecoration: t.done ? "line-through" : "none"}}>
+              {t.text} ({t.date} {t.time})
+            </span>
             <input type="checkbox" onChange={()=>toggleTask(i)} />
-            {t.text}
           </div>
         ))}
+
 
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 function App() {
   
@@ -7,20 +7,49 @@ function App() {
   const [time, setTime] = useState("")
   const [tasks, setTasks] = useState([])
 
-  const addTask = () => {
+  useEffect(() => {
+    fetch("http://localhost:5000/tasks")
+      .then(res => res.json())
+      .then(data => setTasks(data))
+      .catch(err => console.log(err))
+  }, [])
+
+  const addTask = async () => {
     if(task==="") return
-    setTasks([...tasks, {text: task, date, time, done:false}])
-    setTask("")
-    setDate("")
-    setTime("")
+      const newTask = { text: task, date, time, done:false }
+      try {
+        const res = await fetch("http://localhost:5000/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newTask)
+        })
+        const data = await res.json()
+        setTasks([...tasks, data])
+        setTask("")
+        setDate("")
+        setTime("")
+      } catch (err) {
+      console.log(err)
+      }
   }
 
-  const toggleTask = (index) => {
-    const newTasks = [...tasks]
-    newTasks[index].done = !newTasks[index].done
-    setTasks(newTasks)
+  const toggleTask = async (taskObj) => {
+    try {
+      const res = await fetch(`http://localhost:5000/tasks/${taskObj._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ done: !taskObj.done })
+        }
+      )
+      const updatedTask = await res.json()
+      setTasks(tasks.map(t =>
+        t._id === updatedTask._id ? updatedTask : t
+    ))
+    } catch (err) {
+      console.log(err)
+    }
   }
-
   return (
     <div style={{display:"flex"}}>
       
@@ -63,14 +92,16 @@ function App() {
             <span style={{textDecoration: t.done ? "line-through" : "none"}}>
               {t.text} ({t.date} {t.time})
             </span>
-            <input type="checkbox" onChange={()=>toggleTask(i)} />
+            <input
+              type="checkbox"
+              checked={t.done}
+              onChange={() => toggleTask(t)}
+            />
           </div>
         ))}
-
 
       </div>
     </div>
   )
 }
-
 export default App

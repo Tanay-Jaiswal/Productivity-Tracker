@@ -50,6 +50,16 @@ function App() {
       console.log(err)
     }
   }
+  const deleteTask = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/tasks/${id}`, {
+        method: "DELETE",
+      })
+      setTasks(tasks.filter(t => t._id !== id))
+    } catch (err) {
+      console.error(err)
+    }
+  }
   return (
     <div style={{display:"flex"}}>
       
@@ -97,6 +107,13 @@ function App() {
               checked={t.done}
               onChange={() => toggleTask(t)}
             />
+
+            <button
+              style={{marginLeft: "10px"}}
+              onClick={() => deleteTask(t._id)}
+            >
+              Delete
+            </button>
           </div>
         ))}
 
